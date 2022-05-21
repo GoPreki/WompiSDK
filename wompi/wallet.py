@@ -5,30 +5,34 @@ from wompi.models.wallet import WALLET_PROPERTY, PaymentWallet
 from wompi.payments import create_payment
 from wompi.utils.tokenize import create_token, create_long_term_token, get_token_info
 
+
 def create_wallet_token(
-    type: str, 
+    type: str,
     wallet_id: str,
 ):
     if type != AvailablePaymentMethod.NEQUI.value:
         raise Exception('Wallet payment method not available')
 
     body = {
-       WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
+        WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
     }
 
     wallet_token = create_token(path='/nequi', info=body)
 
     return WalletToken.from_dict(wallet_token)
 
-def create_wallet_long_term_token(type, customer_email, payment_token, acceptance_token):
+
+def create_wallet_long_term_token(type, customer_email, payment_token,
+                                  acceptance_token):
     if type != AvailablePaymentMethod.NEQUI.value:
         raise Exception('Wallet payment method not available')
     return create_long_term_token(
-        payment_type=type, 
+        payment_type=type,
         acceptance_token=acceptance_token,
         payment_token=payment_token,
         customer_email=customer_email,
     )
+
 
 def get_wallet_token_info(type, token):
 
@@ -41,7 +45,7 @@ def get_wallet_token_info(type, token):
     )
 
     return WalletToken.from_dict(wallet_token)
-    
+
 
 def create_wallet_payment(
     amount_in_cents: int,
@@ -61,7 +65,6 @@ def create_wallet_payment(
     address_line_2: Optional[str] = None,
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
-
 ) -> WalletPayment:
 
     if type != AvailablePaymentMethod.NEQUI.value:
@@ -88,7 +91,6 @@ def create_wallet_payment(
         redirect_url=redirect_url,
         address_line_2=address_line_2,
         postal_code=postal_code,
-        payment_method=PaymentWallet.from_dict(wallet_payment_method)
-    )
+        payment_method=PaymentWallet.from_dict(wallet_payment_method))
 
     return WalletPayment.from_dict(payment)

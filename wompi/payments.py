@@ -9,6 +9,7 @@ PAYMENTS_PATH = '/transactions'
 
 CURRENCY = 'COP'
 
+
 def create_payment(
     amount_in_cents: int,
     customer_email: str,
@@ -29,13 +30,16 @@ def create_payment(
 ):
     if currency != CURRENCY:
         raise Exception('Selected currency not available')
-    
+
     general_optional_params = optional_dict(redirect_url=redirect_url)
 
-    shipping_optional_params = optional_dict(postal_code=postal_code, address_line_2=address_line_2)
+    shipping_optional_params = optional_dict(postal_code=postal_code,
+                                             address_line_2=address_line_2)
 
-    payment_source = {'payment_source_id' : payment_method.token} if saved_payment_method else {}
-    
+    payment_source = {
+        'payment_source_id': payment_method.token
+    } if saved_payment_method else {}
+
     body = {
         'acceptance_token': acceptance_token,
         'amount_in_cents': amount_in_cents,
@@ -44,7 +48,7 @@ def create_payment(
         'payment_method': payment_method.to_dict(),
         'reference': commerce_reference,
         'customer_data': {
-            'phone_number':customer_phone_number,
+            'phone_number': customer_phone_number,
             'full_name': customer_full_name,
         },
         'shipping_address': {
@@ -64,8 +68,11 @@ def create_payment(
 
 
 def get_payment(transaction_id: str) -> Payment:
-    res = get(path='/transactions/{transaction_id}', path_params={'transaction_id': transaction_id})
+    res = get(path='/transactions/{transaction_id}',
+              path_params={'transaction_id': transaction_id})
     return Payment.from_dict(res)
 
+
 def void_payment(transaction_id: str):
-    return post(path='/transactions/{transaction_id}/void', path_params={'transaction_id': transaction_id})
+    return post(path='/transactions/{transaction_id}/void',
+                path_params={'transaction_id': transaction_id})
