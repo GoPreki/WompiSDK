@@ -1,19 +1,11 @@
 from enum import Enum
 from dataclasses import dataclass
 from typing import Optional, Union
+from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from wompi.models.card import CreditCard
 from wompi.models.shipping import Shipping
 from wompi.models.wallet import Wallet
 from wompi.utils import optional_dict
-
-class AvailablePaymentMethod(Enum):
-    CARD='CARD'
-    NEQUI='NEQUI'
-
-
-WALLET_PROPERTY = {
-    AvailablePaymentMethod.NEQUI.value:'phone_number'
-}
 
 class PaymentStatus(Enum):
     PENDING = 'PENDING'

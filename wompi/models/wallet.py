@@ -1,15 +1,8 @@
-from enum import Enum
+from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from dataclasses import dataclass
 from wompi.utils import optional_dict
 
-class AvailablePaymentMethod(Enum):
-    CARD='CARD'
-    NEQUI='NEQUI'
 
-
-WALLET_PROPERTY = {
-    AvailablePaymentMethod.NEQUI.value:'phone_number'
-}
 @dataclass
 class Wallet:
     type: AvailablePaymentMethod
