@@ -40,7 +40,7 @@ def get_wallet_token_info(type, token):
         raise Exception('Wallet payment method not available')
 
     wallet_token = get_token_info(
-        path='/nequi',
+        path='nequi',
         token=token,
     )
 

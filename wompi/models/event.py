@@ -8,6 +8,7 @@ import hashlib
 class EventType(Enum):
     TRANSACTION_UPDATE = 'transaction.updated'
     NEQUI_TOKEN_UPDATE = 'nequi_token.updated'
+    HTTP_EVENT_UPDATE = 'http_event_received'
 
 @dataclass
 class Signature:
