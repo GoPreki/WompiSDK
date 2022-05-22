@@ -14,6 +14,7 @@ class TokenStatus(Enum):
     APPROVED = 'APPROVED'
     DECLINED = 'DECLINED'
 
+@dataclass
 class Token:
     status:	TokenStatus
     def to_dict(self) -> dict:

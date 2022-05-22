@@ -1,7 +1,5 @@
 from typing import Optional, Union
-from wompi.models.card import PaymentCreditCard
-from wompi.models.payment import Payment
-from wompi.models.wallet import PaymentWallet
+from wompi.models.payment import Payment, PaymentWallet, PaymentCreditCard
 from wompi.utils import optional_dict
 from wompi.utils.requests import get, post
 

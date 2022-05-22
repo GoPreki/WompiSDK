@@ -1,6 +1,5 @@
-from typing import Optional, Union
-from wompi.models.payment import AvailablePaymentMethod, CardPayment
-from wompi.models.card import CreditCard, PaymentCreditCard
+from typing import Optional
+from wompi.models.payment import AvailablePaymentMethod, CardPayment, PaymentCreditCard
 from wompi.models.token import CardToken
 from wompi.payments import create_payment
 from wompi.utils.tokenize import create_token, create_long_term_token
@@ -23,7 +22,7 @@ def create_card_token(
         'card_holder': card_holder,
     }
 
-    credit_card_token = create_token(path='/cards', info=body)
+    credit_card_token = create_token(path=CARDS_PATH, info=body)
 
     return CardToken.from_dict(credit_card_token)
 

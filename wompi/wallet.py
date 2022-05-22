@@ -1,7 +1,6 @@
 from typing import Optional
-from wompi.models.payment import AvailablePaymentMethod, WalletPayment
+from wompi.models.payment import AvailablePaymentMethod, WalletPayment, PaymentWallet, WALLET_PROPERTY
 from wompi.models.token import WalletToken
-from wompi.models.wallet import WALLET_PROPERTY, PaymentWallet
 from wompi.payments import create_payment
 from wompi.utils.tokenize import create_token, create_long_term_token, get_token_info
 

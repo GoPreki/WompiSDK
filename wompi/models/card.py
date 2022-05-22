@@ -1,28 +1,5 @@
 from dataclasses import dataclass
-from wompi.models.payment import PaymentInfo
 from wompi.utils import optional_dict
-
-
-@dataclass
-class PaymentCreditCard(PaymentInfo):
-
-    installments: int
-
-    def to_dict(self) -> dict:
-        return optional_dict(
-            **super().to_dict(),
-            installments=self.installments,
-        )
-
-    @staticmethod
-    def from_dict(req: dict) -> 'PaymentCreditCard':
-        payment_info = PaymentInfo.from_dict(req)
-        return PaymentCreditCard(
-            token=payment_info.token,
-            type=payment_info.type, 
-            installments=req.get('installments', 1),
-        )
-
 
 @dataclass
 class CreditCard:
@@ -64,5 +41,6 @@ class CreditCard:
             bin=req['bin'],
             id=req['id'],
             name=req['name'],
-            created_at=req['created_at']
+            created_at=req['created_at'],
+            expires_at=req['expires_at']
         )

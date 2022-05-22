@@ -1,7 +1,7 @@
 from enum import Enum
 from dataclasses import dataclass
 from typing import Optional, Union
-from wompi.models.card import PaymentCreditCard, CreditCard
+from wompi.models.card import CreditCard
 from wompi.models.shipping import Shipping
 from wompi.models.wallet import Wallet
 from wompi.utils import optional_dict
@@ -9,6 +9,11 @@ from wompi.utils import optional_dict
 class AvailablePaymentMethod(Enum):
     CARD='CARD'
     NEQUI='NEQUI'
+
+
+WALLET_PROPERTY = {
+    AvailablePaymentMethod.NEQUI.value:'phone_number'
+}
 
 class PaymentStatus(Enum):
     PENDING = 'PENDING'
@@ -32,6 +37,46 @@ class PaymentInfo:
         return PaymentInfo(
             type=AvailablePaymentMethod(res['type']),
             token=res['token'],
+        )
+
+@dataclass
+class PaymentCreditCard(PaymentInfo):
+
+    installments: int
+
+    def to_dict(self) -> dict:
+        return optional_dict(
+            **super().to_dict(),
+            installments=self.installments,
+        )
+
+    @staticmethod
+    def from_dict(req: dict) -> 'PaymentCreditCard':
+        payment_info = PaymentInfo.from_dict(req)
+        return PaymentCreditCard(
+            token=payment_info.token,
+            type=payment_info.type, 
+            installments=req.get('installments', 1),
+        )
+
+@dataclass
+class PaymentWallet(PaymentInfo):
+    wallet_id: str
+
+    def to_dict(self) -> dict:
+
+        return optional_dict(
+            **super().to_dict(), 
+            **{WALLET_PROPERTY[self.type.value]:self.wallet_id},
+        )
+
+    @staticmethod
+    def from_dict(req: dict) -> 'PaymentWallet':
+        payment_info = PaymentInfo.from_dict(req)
+        return PaymentWallet(
+            type=payment_info.type,
+            token=payment_info.token,
+            wallet_id=req[WALLET_PROPERTY[payment_info.type.value]],
         )
 
 @dataclass
