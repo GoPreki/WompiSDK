@@ -1,5 +1,6 @@
 from typing import Optional
-from wompi.models.payment import AvailablePaymentMethod, WalletPayment, PaymentWallet, WALLET_PROPERTY
+from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
+from wompi.models.payment import WalletPayment, PaymentWallet
 from wompi.models.token import WalletToken
 from wompi.payments import create_payment
 from wompi.utils.tokenize import create_token, create_long_term_token, get_token_info
@@ -18,7 +19,7 @@ def create_wallet_token(
 
     wallet_token = create_token(path='/nequi', info=body)
 
-    return WalletToken.from_dict(wallet_token)
+    return WalletToken.from_dict(wallet_token['data'])
 
 
 def create_wallet_long_term_token(type, customer_email, payment_token,
@@ -43,7 +44,7 @@ def get_wallet_token_info(type, token):
         token=token,
     )
 
-    return WalletToken.from_dict(wallet_token)
+    return WalletToken.from_dict(wallet_token['data'])
 
 
 def create_wallet_payment(

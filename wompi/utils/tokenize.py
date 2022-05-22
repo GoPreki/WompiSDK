@@ -1,4 +1,7 @@
-from wompi.utils.requests import get, post
+from wompi.utils.requests import Keys, get, post
+
+def create_acceptance_token():
+    return get(path='/merchants/{public_key}',  path_params={'public_key': Keys.X_PUBLIC_KEY})
 
 def get_token_info(path, token):
     return get(path='/tokens/{path}/{token_id}', path_params={'path': path, 'token_id': token})
