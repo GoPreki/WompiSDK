@@ -13,7 +13,7 @@ from wompi.payments import get_payment, void_payment
 from wompi.models.event import Event
 from wompi.models.exception import WompiException
 
-#Initializes SDK
+#Initializes SDK. Last param corresponds to environment==Sandbox
 def do_init():
     init('<PUBLIC_KEY>', '<PRIVATE_KEY>', '<EVENTS_SECRET>', True)
 
