@@ -1,11 +1,18 @@
 from typing import Optional, Union
-from wompi.models.payment import Payment, PaymentWallet, PaymentCreditCard
+from wompi.models.exception import WompiException
+from wompi.models.payment import CardPayment, Payment, PaymentWallet, PaymentCreditCard, WalletPayment
+from wompi.models.payment_methods import AvailablePaymentMethod
 from wompi.utils import optional_dict
 from wompi.utils.requests import get, post
 
 PAYMENTS_PATH = '/transactions'
 
 CURRENCY = 'COP'
+
+PAYMENT_TYPE = {
+    AvailablePaymentMethod.CARD.value: CardPayment,
+    AvailablePaymentMethod.NEQUI.value: WalletPayment,
+}
 
 
 def create_payment(
@@ -27,7 +34,12 @@ def create_payment(
     redirect_url: Optional[str] = None,
 ):
     if currency != CURRENCY:
-        raise Exception('Selected currency not available')
+        raise WompiException.from_dict({
+            'type': 'INPUT_VALIDATION_ERROR',
+            'messages': {
+                'reference': ['Selected currency not available']
+            }
+        })
 
     general_optional_params = optional_dict(redirect_url=redirect_url)
 
@@ -68,9 +80,17 @@ def create_payment(
 def get_payment(transaction_id: str) -> Payment:
     res = get(path='/transactions/{transaction_id}',
               path_params={'transaction_id': transaction_id})
-    return Payment.from_dict(res)
+
+    if res.get('error'):
+        raise WompiException.from_dict(res['error'])
+    
+    return PAYMENT_TYPE[res['data']['payment_method_type']].from_dict(res['data'])
 
 
 def void_payment(transaction_id: str):
-    return post(path='/transactions/{transaction_id}/void',
-                path_params={'transaction_id': transaction_id})
+    res = post(path='/transactions/{transaction_id}/void',
+                path_params={'transaction_id': transaction_id}, sensitive=True)
+    if res.get('error'):
+        raise WompiException.from_dict(res['error'])
+
+    return res 

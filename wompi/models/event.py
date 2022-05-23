@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Any
+from wompi.models.exception import WompiException
 from wompi.utils import optional_dict
 from wompi.utils.requests import Keys
 import hashlib
@@ -48,8 +49,13 @@ class Event:
         
         concat_props+=str(self.timestamp)
         if Keys.EVENT_SECRET is None:
-            raise Exception('Keys were not correctly initialized')
-
+            raise WompiException.from_dict({
+                'type': 'INPUT_VALIDATION_ERROR',
+                'messages': {
+                    'reference': ['Keys were not correctly initialized']
+                }
+            })
+           
         concat_props+=str(Keys.EVENT_SECRET)
 
         hashed_props = hashlib.sha256(concat_props.encode('utf-8')).hexdigest()

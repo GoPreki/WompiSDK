@@ -1,5 +1,6 @@
 import requests
 from urllib.parse import quote
+from wompi.models.exception import WompiException
 
 
 class Keys:
@@ -16,7 +17,12 @@ def get_base_url():
 
 def form_headers(sensitive) -> dict:
     if not (Keys.X_PUBLIC_KEY or sensitive) or (sensitive and not Keys.X_PRIV_KEY):
-        raise Exception('Keys were not correctly initialized')
+        raise WompiException.from_dict({
+            'type': 'INPUT_VALIDATION_ERROR',
+            'messages': {
+                'reference': ['Keys were not correctly initialized']
+            }
+        })
 
     auth_key = Keys.X_PRIV_KEY if sensitive else Keys.X_PUBLIC_KEY
 
@@ -27,7 +33,10 @@ def form_headers(sensitive) -> dict:
     }
 
 
-def post(path='', body=None, sensitive=False):
+def post(path='', path_params={}, body=None, sensitive=False):
+    for key, value in path_params.items():
+        value = quote(value)
+        path = path.replace(f'/{{{key}}}', f'/{value}')
     req = requests.post(url=f'{get_base_url()}{path}', json=body, headers=form_headers(sensitive))
     res = req.json()
     return res

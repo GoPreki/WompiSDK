@@ -1,18 +1,19 @@
 from dataclasses import dataclass
+from typing import Optional
 from wompi.utils import optional_dict
 
 @dataclass
 class CreditCard:
-    card_holder: str
-    expiration_month: str
-    expiration_year: str
+    card_holder: Optional[str]
+    expiration_month: Optional[str]
+    expiration_year: Optional[str]
     last4: str
-    id: str
+    id: Optional[str]
     brand: str
-    bin: str
+    bin: Optional[str]
     name: str
-    created_at: str
-    expires_at: str
+    created_at: Optional[str]
+    expires_at: Optional[str]
     type: str = 'CARD'
 
     def to_dict(self) -> dict:
@@ -33,14 +34,14 @@ class CreditCard:
     @staticmethod
     def from_dict(req: dict) -> 'CreditCard':
         return CreditCard(
-            card_holder=req['card_holder'],
-            expiration_month=req['exp_month'],
-            expiration_year=req['exp_year'],
+            card_holder=req.get('card_holder'),
+            expiration_month=req.get('exp_month'),
+            expiration_year=req.get('exp_year'),
             last4=req['last_four'],
             brand=req['brand'],
-            bin=req['bin'],
-            id=req['id'],
+            bin=req.get('bin'),
+            id=req.get('id'),
             name=req['name'],
-            created_at=req['created_at'],
-            expires_at=req['expires_at']
+            created_at=req.get('created_at'),
+            expires_at=req.get('expires_at')
         )

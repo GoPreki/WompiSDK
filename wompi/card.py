@@ -1,4 +1,5 @@
 from typing import Optional
+from wompi.models.exception import WompiException
 from wompi.models.payment import AvailablePaymentMethod, CardPayment, PaymentCreditCard
 from wompi.models.token import CardToken
 from wompi.payments import create_payment
@@ -24,6 +25,9 @@ def create_card_token(
 
     credit_card_token = create_token(path=CARDS_PATH, info=body)
 
+    if credit_card_token.get('error'):
+        raise WompiException.from_dict(credit_card_token['error'])
+
     return CardToken.from_dict(credit_card_token)
 
 
@@ -48,6 +52,7 @@ def create_card_payment(
     region: str,
     city: str,
     customer_phone_number: str,
+    currency: str ='COP',
     installments: int = 1,
     saved_payment_method: bool = False,
     country: str = 'CO',
@@ -77,6 +82,10 @@ def create_card_payment(
         redirect_url=redirect_url,
         address_line_2=address_line_2,
         postal_code=postal_code,
+        currency=currency,
         payment_method=PaymentCreditCard.from_dict(card_payment_method))
+    
+    if payment.get('error'):
+        raise WompiException.from_dict(payment['error'])
 
-    return CardPayment.from_dict(payment)
+    return CardPayment.from_dict(payment['data'])

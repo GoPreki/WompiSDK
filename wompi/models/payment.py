@@ -1,6 +1,8 @@
 from enum import Enum
 from dataclasses import dataclass
+from gettext import install
 from typing import Optional, Union
+from wompi.models.customer import Customer
 from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from wompi.models.card import CreditCard
 from wompi.models.shipping import Shipping
@@ -73,17 +75,19 @@ class PaymentWallet(PaymentInfo):
 
 @dataclass
 class Payment:
-    shipping_address: Shipping
+    shipping_address: Optional[Shipping]
+    customer: Optional[Customer]
     id: str
     created_at: str
     amount_in_cents: int
     status: PaymentStatus
     reference: str
-    customer_email: str
+    customer_email: Optional[str]
     payment_method_type: AvailablePaymentMethod
     redirect_url: Optional[str]
     payment_link_id: Optional[str]
     currency: str
+    status_message: Optional[str]
 
     def to_dict(self) -> dict:
         return optional_dict(
@@ -96,7 +100,10 @@ class Payment:
             payment_method_type=self.payment_method_type.value,
             redirect_url=self.redirect_url,
             payment_link_id=self.payment_link_id,
-            currency=self.currency
+            currency=self.currency,
+            shipping_address=self.shipping_address.to_dict() if self.shipping_address else None,
+            customer=self.customer.to_dict() if self.customer else None,
+            status_message=self.status_message,
         )
 
     @staticmethod
@@ -107,17 +114,21 @@ class Payment:
             amount_in_cents=res['amount_in_cents'],
             status=PaymentStatus(res['status']),
             reference=res['reference'],
-            customer_email=res['customer_email'],
+            customer_email=res.get('customer_email'),
             payment_method_type=AvailablePaymentMethod(res['payment_method_type']),
             redirect_url=res.get('redirect_url'),
             payment_link_id=res.get('payment_link_id'),
-            currency=res['currency']
+            currency=res['currency'],
+            shipping_address=Shipping.from_dict(res['shipping_address']) if res.get('shipping_address') else None,
+            customer=Customer.from_dict(res['customer_data']) if res.get('customer_data') else None,
+            status_message=res.get('status_message'),
         )
 
 
 @dataclass
 class CardPayment(Payment):
-    payment_method: Union[CreditCard, PaymentCreditCard]
+    payment_method: CreditCard
+    installments: int
 
     def to_dict(self) -> dict:
         return {**super().to_dict(), 'payment_method': self.payment_method.to_dict()}
@@ -125,8 +136,10 @@ class CardPayment(Payment):
     @staticmethod
     def from_dict(res: dict) -> 'CardPayment':
         payment = Payment.from_dict(res)
+        payment_method_info = res['payment_method']
         return CardPayment(
-            payment_method=CreditCard.from_dict(res['payment_method']) if res.get('payment_source_id') else PaymentCreditCard.from_dict(res['payment_method']),
+            payment_method=CreditCard.from_dict(payment_method_info['extra']),
+            installments=int(payment_method_info['installments']),
             shipping_address=payment.shipping_address,
             id=payment.id,
             created_at=payment.created_at,
@@ -138,6 +151,8 @@ class CardPayment(Payment):
             redirect_url=payment.redirect_url,
             payment_link_id=payment.payment_link_id,
             currency=payment.currency,
+            customer=payment.customer,
+            status_message=payment.status_message,
         )
 
 @dataclass
@@ -162,5 +177,7 @@ class WalletPayment(Payment):
             redirect_url=payment.redirect_url,
             payment_link_id=payment.payment_link_id,
             currency=payment.currency,
+            customer=payment.customer,
+            status_message=payment.status_message,
             wallet_info=Wallet.from_dict(res['payment_method'])
         )
