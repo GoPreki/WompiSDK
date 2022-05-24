@@ -4,6 +4,7 @@ from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from wompi.models.payment import WalletPayment, PaymentWallet
 from wompi.models.token import WalletToken
 from wompi.payments import create_payment
+from wompi.utils import optional_dict
 from wompi.utils.tokenize import create_token, create_long_term_token, get_token_info
 
 
@@ -73,7 +74,6 @@ def get_wallet_token_info(type, token):
 def create_wallet_payment(
     amount_in_cents: int,
     customer_email: str,
-    payment_token: str,
     acceptance_token: str,
     commerce_reference: str,
     customer_full_name: str,
@@ -82,6 +82,7 @@ def create_wallet_payment(
     city: str,
     customer_phone_number: str,
     wallet_id: str,
+    payment_token: Optional[str] = None,
     currency: str = 'COP',
     type: str = 'NEQUI',
     saved_payment_method: bool = False,
@@ -99,11 +100,11 @@ def create_wallet_payment(
             }
         })
 
-    wallet_payment_method = {
+    wallet_payment_method = optional_dict({
         'token': payment_token,
         WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
         'type': AvailablePaymentMethod.NEQUI.value
-    }
+    })
 
     payment = create_payment(
         amount_in_cents=amount_in_cents,
