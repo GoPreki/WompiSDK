@@ -27,6 +27,6 @@ class WompiException(Exception):
     def from_dict(res: dict) -> 'WompiException':
         return WompiException(
             type=WompiExceptionType(res['type']),
-            messages=[msg for list_msg in res['messages'].values() for msg in list_msg] if res.get('messages') else None,
+            messages=[msg for list_msg in res['messages'].items() for msg in [list_msg[0], *list_msg[1]]] if res.get('messages') else None,
             reason=res.get('reason')
         )
