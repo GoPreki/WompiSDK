@@ -74,8 +74,6 @@ def create_payment(
         **general_optional_params,
     }
 
-    print(body)
-
     return post(path=PAYMENTS_PATH, body=body, sensitive=saved_payment_method)
 
 
