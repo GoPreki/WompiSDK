@@ -100,7 +100,7 @@ def create_wallet_payment(
             }
         })
 
-    wallet_payment_method = optional_dict({
+    wallet_payment_method = optional_dict(**{
         'token': payment_token,
         WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
         'type': AvailablePaymentMethod.NEQUI.value
