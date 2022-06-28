@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from email import message
 from enum import Enum
 from typing import List, Optional
 from wompi.utils import optional_dict
@@ -9,6 +8,7 @@ class WompiExceptionType(Enum):
     INVALID_ACCESS_TOKEN = 'INVALID_ACCESS_TOKEN'
     INPUT_VALIDATION_ERROR = 'INPUT_VALIDATION_ERROR'
     UNPROCESSABLE = 'UNPROCESSABLE'
+
 
 @dataclass
 class WompiException(Exception):
@@ -25,8 +25,12 @@ class WompiException(Exception):
 
     @staticmethod
     def from_dict(res: dict) -> 'WompiException':
+        messages = None
+        if res.get('messages'):
+            messages = [msg for list_msg in res['messages'].items() for msg in [list_msg[0], *list_msg[1]]]
+
         return WompiException(
             type=WompiExceptionType(res['type']),
-            messages=[msg for list_msg in res['messages'].items() for msg in [list_msg[0], *list_msg[1]]] if res.get('messages') else None,
+            messages=messages,
             reason=res.get('reason')
         )

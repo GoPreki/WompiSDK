@@ -52,7 +52,7 @@ def create_card_payment(
     region: str,
     city: str,
     customer_phone_number: str,
-    currency: str ='COP',
+    currency: str = 'COP',
     installments: int = 1,
     saved_payment_method: bool = False,
     country: str = 'CO',
@@ -84,7 +84,7 @@ def create_card_payment(
         postal_code=postal_code,
         currency=currency,
         payment_method=PaymentCreditCard.from_dict(card_payment_method))
-    
+
     if payment.get('error'):
         raise WompiException.from_dict(payment['error'])
 

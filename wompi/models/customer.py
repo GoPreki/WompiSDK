@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from wompi.utils import optional_dict
 
+
 @dataclass
 class Customer:
     full_name: str
-    phone_number: str #573109999999
+    phone_number: str  # 573109999999
 
     def to_dict(self) -> dict:
         return optional_dict(

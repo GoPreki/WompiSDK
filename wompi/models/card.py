@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from wompi.utils import optional_dict
 
+
 @dataclass
 class CreditCard:
     card_holder: Optional[str]

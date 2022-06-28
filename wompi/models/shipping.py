@@ -2,15 +2,16 @@ from typing import Optional
 from dataclasses import dataclass
 from wompi.utils import optional_dict
 
+
 @dataclass
 class Shipping:
     address_line_1:	str
     address_line_2:	Optional[str]
-    country: str #CO
+    country: str  # CO
     state: str
     city: str
     name: Optional[str]
-    phone_number: str #573109999999
+    phone_number: str  # 573109999999
     postal_code: Optional[str]
 
     def to_dict(self) -> dict:

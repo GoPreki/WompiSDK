@@ -11,7 +11,7 @@ class Wallet:
     def to_dict(self) -> dict:
         return optional_dict(
             type=self.type.value,
-            **{WALLET_PROPERTY[self.type.value]:self.wallet_id},
+            **{WALLET_PROPERTY[self.type.value]: self.wallet_id},
         )
 
     @staticmethod

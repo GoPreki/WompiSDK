@@ -6,10 +6,12 @@ from wompi.utils import optional_dict
 from wompi.utils.requests import Keys
 import hashlib
 
+
 class EventType(Enum):
     TRANSACTION_UPDATE = 'transaction.updated'
     NEQUI_TOKEN_UPDATE = 'nequi_token.updated'
     HTTP_EVENT_UPDATE = 'http_event_received'
+
 
 @dataclass
 class Signature:
@@ -26,8 +28,9 @@ class Signature:
     def from_dict(res: dict) -> 'Signature':
         return Signature(
             properties=res.get('properties', []),
-            checksum=res.get('checksum'),
+            checksum=res['checksum'],
         )
+
 
 @dataclass
 class Event:
@@ -46,8 +49,8 @@ class Event:
             for param in params:
                 info = info[param]
             concat_props += str(info)
-        
-        concat_props+=str(self.timestamp)
+
+        concat_props += str(self.timestamp)
         if Keys.EVENT_SECRET is None:
             raise WompiException.from_dict({
                 'type': 'INPUT_VALIDATION_ERROR',
@@ -55,11 +58,11 @@ class Event:
                     'reference': ['Keys were not correctly initialized']
                 }
             })
-           
-        concat_props+=str(Keys.EVENT_SECRET)
+
+        concat_props += str(Keys.EVENT_SECRET)
 
         hashed_props = hashlib.sha256(concat_props.encode('utf-8')).hexdigest()
-        
+
         return hashed_props == self.signature.checksum
 
     def to_dict(self) -> dict:

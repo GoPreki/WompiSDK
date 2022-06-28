@@ -83,14 +83,14 @@ def get_payment(transaction_id: str) -> Payment:
 
     if res.get('error'):
         raise WompiException.from_dict(res['error'])
-    
+
     return PAYMENT_TYPE[res['data']['payment_method_type']].from_dict(res['data'])
 
 
 def void_payment(transaction_id: str):
     res = post(path='/transactions/{transaction_id}/void',
-                path_params={'transaction_id': transaction_id}, sensitive=True)
+               path_params={'transaction_id': transaction_id}, sensitive=True)
     if res.get('error'):
         raise WompiException.from_dict(res['error'])
 
-    return res 
+    return res

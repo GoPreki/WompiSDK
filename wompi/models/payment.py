@@ -1,13 +1,13 @@
 from enum import Enum
 from dataclasses import dataclass
-from gettext import install
-from typing import Optional, Union
+from typing import Optional
 from wompi.models.customer import Customer
 from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from wompi.models.card import CreditCard
 from wompi.models.shipping import Shipping
 from wompi.models.wallet import Wallet
 from wompi.utils import optional_dict
+
 
 class PaymentStatus(Enum):
     PENDING = 'PENDING'
@@ -16,10 +16,12 @@ class PaymentStatus(Enum):
     VOIDED = 'VOIDED'
     ERROR = 'ERROR'
 
+
 @dataclass
 class PaymentInfo:
     token: Optional[str]
     type: AvailablePaymentMethod
+
     def to_dict(self) -> dict:
         return optional_dict(
             token=self.token,
@@ -32,6 +34,7 @@ class PaymentInfo:
             type=AvailablePaymentMethod(res['type']),
             token=res.get('token'),
         )
+
 
 @dataclass
 class PaymentCreditCard(PaymentInfo):
@@ -49,9 +52,10 @@ class PaymentCreditCard(PaymentInfo):
         payment_info = PaymentInfo.from_dict(req)
         return PaymentCreditCard(
             token=payment_info.token,
-            type=payment_info.type, 
+            type=payment_info.type,
             installments=req.get('installments', 1),
         )
+
 
 @dataclass
 class PaymentWallet(PaymentInfo):
@@ -60,8 +64,8 @@ class PaymentWallet(PaymentInfo):
     def to_dict(self) -> dict:
 
         return optional_dict(
-            **super().to_dict(), 
-            **{WALLET_PROPERTY[self.type.value]:self.wallet_id},
+            **super().to_dict(),
+            **{WALLET_PROPERTY[self.type.value]: self.wallet_id},
         )
 
     @staticmethod
@@ -72,6 +76,7 @@ class PaymentWallet(PaymentInfo):
             token=payment_info.token,
             wallet_id=req[WALLET_PROPERTY[payment_info.type.value]],
         )
+
 
 @dataclass
 class Payment:
@@ -154,6 +159,7 @@ class CardPayment(Payment):
             customer=payment.customer,
             status_message=payment.status_message,
         )
+
 
 @dataclass
 class WalletPayment(Payment):

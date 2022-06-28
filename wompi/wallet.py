@@ -41,7 +41,7 @@ def create_wallet_long_term_token(type, customer_email, payment_token,
                 'reference': ['Wallet payment method not available']
             }
         })
-        
+
     return create_long_term_token(
         payment_type=type,
         acceptance_token=acceptance_token,
