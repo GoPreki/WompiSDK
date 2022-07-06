@@ -38,7 +38,6 @@ class PaymentInfo:
 
 @dataclass
 class PaymentCreditCard(PaymentInfo):
-
     installments: int
 
     def to_dict(self) -> dict:

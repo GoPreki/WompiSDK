@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from wompi.models.exception import WompiException
 from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from wompi.models.payment import WalletPayment, PaymentWallet
@@ -73,6 +73,7 @@ def get_wallet_token_info(type, token):
 
 def create_wallet_payment(
     amount_in_cents: int,
+    taxes: List[dict],
     customer_email: str,
     acceptance_token: str,
     commerce_reference: str,
@@ -108,6 +109,7 @@ def create_wallet_payment(
 
     payment = create_payment(
         amount_in_cents=amount_in_cents,
+        taxes=taxes,
         customer_email=customer_email,
         acceptance_token=acceptance_token,
         commerce_reference=commerce_reference,

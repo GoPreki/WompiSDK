@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from wompi.models.exception import WompiException
 from wompi.models.payment import AvailablePaymentMethod, CardPayment, PaymentCreditCard
 from wompi.models.token import CardToken
@@ -43,6 +43,7 @@ def create_card_long_term_token(customer_email, payment_token,
 
 def create_card_payment(
     amount_in_cents: int,
+    taxes: List[dict],
     customer_email: str,
     payment_token: str,
     acceptance_token: str,
@@ -69,6 +70,7 @@ def create_card_payment(
 
     payment = create_payment(
         amount_in_cents=amount_in_cents,
+        taxes=taxes,
         customer_email=customer_email,
         acceptance_token=acceptance_token,
         commerce_reference=commerce_reference,

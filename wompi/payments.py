@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 from wompi.models.exception import WompiException
 from wompi.models.payment import CardPayment, Payment, PaymentWallet, PaymentCreditCard, WalletPayment
 from wompi.models.payment_methods import AvailablePaymentMethod
@@ -17,6 +17,7 @@ PAYMENT_TYPE = {
 
 def create_payment(
     amount_in_cents: int,
+    taxes: List[dict],
     customer_email: str,
     acceptance_token: str,
     commerce_reference: str,
@@ -54,6 +55,7 @@ def create_payment(
         'acceptance_token': acceptance_token,
         'amount_in_cents': amount_in_cents,
         'currency': currency,
+        'taxes': taxes,
         'customer_email': customer_email,
         'payment_method': payment_method.to_dict(),
         'reference': commerce_reference,
