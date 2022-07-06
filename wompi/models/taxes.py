@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 class TaxType(Enum):
     VAT = 'VAT'  # IVA
-    CONSUMPTION = 'APPROVED'  # Impuesto al Consumo
+    CONSUMPTION = 'CONSUMPTION'  # Impuesto al Consumo
 
 
 @dataclass
