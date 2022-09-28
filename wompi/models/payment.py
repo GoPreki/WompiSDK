@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 from wompi.models.customer import Customer
 from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
 from wompi.models.card import CreditCard
@@ -74,6 +74,38 @@ class PaymentWallet(PaymentInfo):
             type=payment_info.type,
             token=payment_info.token,
             wallet_id=req[WALLET_PROPERTY[payment_info.type.value]],
+        )
+
+
+@dataclass
+class PaymentBankTransfer(PaymentInfo):
+    user_type: str
+    user_legal_id_type: str
+    user_legal_id: str
+    financial_institution_code: str
+    payment_description: str
+
+    def to_dict(self) -> dict:
+        return optional_dict(
+                **super().to_dict(),
+                user_type=self.user_type,
+                user_legal_id_type=self.user_legal_id_type,
+                user_legal_id=self.user_legal_id,
+                financial_institution_code=self.financial_institution_code,
+                payment_description=self.payment_description,
+        )
+
+    @staticmethod
+    def from_dict(req: dict) -> 'PaymentBankTransfer':
+        payment_info = PaymentInfo.from_dict(req)
+        return PaymentBankTransfer(
+            type=payment_info.type,
+            token=payment_info.token,
+            financial_institution_code=req['financial_institution_code'],
+            payment_description=req['payment_description'],
+            user_legal_id=req['user_legal_id'],
+            user_legal_id_type=req['user_legal_id_type'],
+            user_type=req['user_type'],
         )
 
 
@@ -185,4 +217,32 @@ class WalletPayment(Payment):
             customer=payment.customer,
             status_message=payment.status_message,
             wallet_info=Wallet.from_dict(res['payment_method'])
+        )
+
+
+@dataclass
+class BankTransferPayment(Payment):
+    url: Union[str, None]
+
+    def to_dict(self) -> dict:
+        return {**super().to_dict()}
+
+    @staticmethod
+    def from_dict(res: dict) -> 'BankTransferPayment':
+        payment = Payment.from_dict(res)
+        return BankTransferPayment(
+            shipping_address=payment.shipping_address,
+            id=payment.id,
+            created_at=payment.created_at,
+            amount_in_cents=payment.amount_in_cents,
+            status=payment.status,
+            reference=payment.reference,
+            customer_email=payment.customer_email,
+            payment_method_type=payment.payment_method_type,
+            redirect_url=payment.redirect_url,
+            payment_link_id=payment.payment_link_id,
+            currency=payment.currency,
+            customer=payment.customer,
+            status_message=payment.status_message,
+            url=res.get('payment_method', {}).get('extra', {}).get('async_payment_url'),
         )

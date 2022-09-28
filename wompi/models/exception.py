@@ -34,3 +34,6 @@ class WompiException(Exception):
             messages=messages,
             reason=res.get('reason')
         )
+
+    def __str__(self) -> str:
+        return f'{self.reason or self.type}: {self.messages}'
