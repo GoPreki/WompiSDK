@@ -45,12 +45,9 @@ def create_payment(
 
     general_optional_params = optional_dict(redirect_url=redirect_url)
 
-    shipping_optional_params = optional_dict(postal_code=postal_code,
-                                             address_line_2=address_line_2)
+    shipping_optional_params = optional_dict(postal_code=postal_code, address_line_2=address_line_2)
 
-    payment_source = {
-        'payment_source_id': payment_method.token
-    } if saved_payment_method else {}
+    payment_source = {'payment_source_id': payment_method.token} if saved_payment_method else {}
 
     body = {
         'acceptance_token': acceptance_token,
@@ -81,8 +78,7 @@ def create_payment(
 
 
 def get_payment(transaction_id: str) -> Payment:
-    res = get(path='/transactions/{transaction_id}',
-              path_params={'transaction_id': transaction_id})
+    res = get(path='/transactions/{transaction_id}', path_params={'transaction_id': transaction_id})
 
     if res.get('error'):
         raise WompiException.from_dict(res['error'])
@@ -92,7 +88,8 @@ def get_payment(transaction_id: str) -> Payment:
 
 def void_payment(transaction_id: str):
     res = post(path='/transactions/{transaction_id}/void',
-               path_params={'transaction_id': transaction_id}, sensitive=True)
+               path_params={'transaction_id': transaction_id},
+               sensitive=True)
     if res.get('error'):
         raise WompiException.from_dict(res['error'])
 
