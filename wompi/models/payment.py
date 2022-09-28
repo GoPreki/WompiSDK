@@ -110,6 +110,26 @@ class PaymentBankTransfer(PaymentInfo):
 
 
 @dataclass
+class PaymentCollect(PaymentInfo):
+    sandbox_status: Optional[str] = None
+
+    def to_dict(self) -> dict:
+        return optional_dict(
+                **super().to_dict(),
+                sandbox_status=self.sandbox_status,
+        )
+
+    @staticmethod
+    def from_dict(req: dict) -> 'PaymentCollect':
+        payment_info = PaymentInfo.from_dict(req)
+        return PaymentCollect(
+            type=payment_info.type,
+            token=payment_info.token,
+            sandbox_status=req['sandbox_status']
+        )
+
+
+@dataclass
 class Payment:
     shipping_address: Optional[Shipping]
     customer: Optional[Customer]
@@ -225,7 +245,7 @@ class BankTransferPayment(Payment):
     url: Union[str, None]
 
     def to_dict(self) -> dict:
-        return {**super().to_dict()}
+        return {**super().to_dict(), 'url': self.url}
 
     @staticmethod
     def from_dict(res: dict) -> 'BankTransferPayment':
@@ -245,4 +265,34 @@ class BankTransferPayment(Payment):
             customer=payment.customer,
             status_message=payment.status_message,
             url=res.get('payment_method', {}).get('extra', {}).get('async_payment_url'),
+        )
+
+
+@dataclass
+class CollectPayment(Payment):
+    business_agreement_code: Union[str, None]
+    payment_intention_identifier: Union[str, None]
+
+    def to_dict(self) -> dict:
+        return {**super().to_dict()}
+
+    @staticmethod
+    def from_dict(res: dict) -> 'CollectPayment':
+        payment = Payment.from_dict(res)
+        return CollectPayment(
+            shipping_address=payment.shipping_address,
+            id=payment.id,
+            created_at=payment.created_at,
+            amount_in_cents=payment.amount_in_cents,
+            status=payment.status,
+            reference=payment.reference,
+            customer_email=payment.customer_email,
+            payment_method_type=payment.payment_method_type,
+            redirect_url=payment.redirect_url,
+            payment_link_id=payment.payment_link_id,
+            currency=payment.currency,
+            customer=payment.customer,
+            status_message=payment.status_message,
+            business_agreement_code=res.get('payment_method', {}).get('extra', {}).get('business_agreement_code'),
+            payment_intention_identifier=res.get('payment_method', {}).get('extra', {}).get('payment_intention_identifier'),
         )

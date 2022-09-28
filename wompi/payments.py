@@ -1,7 +1,7 @@
 from typing import Optional, Union, List
 from wompi.models.exception import WompiException
-from wompi.models.payment import (BankTransferPayment, PaymentBankTransfer, CardPayment, Payment, PaymentWallet,
-                                  PaymentCreditCard, WalletPayment)
+from wompi.models.payment import (BankTransferPayment, CollectPayment, PaymentBankTransfer, CardPayment, Payment, PaymentCollect,
+                                  PaymentWallet, PaymentCreditCard, WalletPayment)
 from wompi.models.payment_methods import AvailablePaymentMethod
 from wompi.models.taxes import Tax
 from wompi.utils import optional_dict
@@ -15,6 +15,7 @@ PAYMENT_TYPE = {
     AvailablePaymentMethod.CARD.value: CardPayment,
     AvailablePaymentMethod.NEQUI.value: WalletPayment,
     AvailablePaymentMethod.PSE.value: BankTransferPayment,
+    AvailablePaymentMethod.BANCOLOMBIA_COLLECT.value: CollectPayment,
 }
 
 
@@ -31,7 +32,7 @@ def create_payment(
     city: str,
     currency: str,
     customer_phone_number: str,
-    payment_method: Union[PaymentCreditCard, PaymentWallet, PaymentBankTransfer],
+    payment_method: Union[PaymentCreditCard, PaymentWallet, PaymentBankTransfer, PaymentCollect],
     saved_payment_method: bool = False,
     address_line_2: Optional[str] = None,
     postal_code: Optional[str] = None,
