@@ -14,7 +14,7 @@ def list_available_transfer_banks():
     return get('/pse/financial_institutions')
 
 
-@polling(CreateBankTransferPayment.Response, until=['url'])
+@polling(CreateBankTransferPayment.Response, until=['info.async_payment_url'])
 @request(CreateBankTransferPayment, CreateBankTransferPayment.Response, cls=BankTransferResponse)
 def create_bank_transfer_payment(
     financial_institution_code: str,

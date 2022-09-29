@@ -14,17 +14,36 @@ R = TypeVar('R', bound=PaymentResponse)
 Q = TypeVar('Q', bound=Callable[..., PaymentResponse])
 
 
+def _get_nested_attr(obj, attr_path: str):
+    attrs = attr_path.split('.')
+    current = obj
+    for attr in attrs:
+        current = getattr(current, attr, None)
+    return current
+
+
+def _set_nested_attr(obj, attr_path: str, value):
+    attrs = attr_path.split('.')
+    last_attr = attrs.pop()
+    current = obj
+    for attr in attrs:
+        current = getattr(current, attr, None)
+    if current:
+        setattr(current, last_attr, value)
+    return current
+
+
 def polling(_: Type[Q], *, until: List[str], sleep_secs=1):
     def decorator(fun: Callable[..., R]):
         @wraps(fun)
         def wrapper(*args, **kwargs):
             transaction = fun(*args, **kwargs)
 
-            while not all(getattr(transaction, attr) for attr in until):
+            while not all(_get_nested_attr(transaction, attr) for attr in until):
                 sleep(sleep_secs)
                 payment = get_payment(transaction.id)
                 for attr in until:
-                    setattr(transaction, attr, getattr(payment, attr))
+                    _set_nested_attr(transaction, attr, _get_nested_attr(payment, attr))
 
             return transaction
         return wrapper
