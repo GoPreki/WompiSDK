@@ -64,20 +64,22 @@ class CardToken(Token):
 @dataclass
 class CreditCardRequest(PaymentRequest):
     installments: int
+    token: Optional[str]
 
     def to_dict(self) -> dict:
         return optional_dict(
             **super().to_dict(),
             installments=self.installments,
+            token=self.token,
         )
 
     @staticmethod
     def from_dict(req: dict) -> 'CreditCardRequest':
         payment_info = PaymentRequest.from_dict(req)
         return CreditCardRequest(
-            token=payment_info.token,
             type=payment_info.type,
             installments=req.get('installments', 1),
+            token=req.get('token'),
         )
 
 

@@ -34,7 +34,6 @@ class TransferRequest(PaymentRequest):
     def from_dict(req: dict) -> 'TransferRequest':
         payment_info = PaymentRequest.from_dict(req)
         return TransferRequest(type=payment_info.type,
-                               token=payment_info.token,
                                sandbox_status=req.get('sandbox_status'),
                                user_type=req['user_type'],
                                payment_description=req['payment_description'])

@@ -3,8 +3,8 @@ from wompi.models.methods.bank_transfer import BankTransferResponse, BankTransfe
 from wompi.models.methods import AvailablePaymentMethod
 from wompi.models.entities.taxes import Tax
 from wompi.payments import create_payment
-from wompi.utils import optional_dict
-from wompi.utils.decorators import capture_error, polling, request
+from wompi.decorators.requests import polling, request
+from wompi.decorators.errors import capture_error
 from wompi.utils.requests import get
 from wompi.typing.bank_transfer import CreateBankTransferPayment, ListAvailableTransferBanks
 
@@ -38,16 +38,6 @@ def create_bank_transfer_payment(
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
 ) -> dict:
-
-    bank_transfer_payment_method = optional_dict(
-        type=AvailablePaymentMethod.PSE.value,
-        financial_institution_code=financial_institution_code,
-        user_type=user_type,
-        user_legal_id_type=user_legal_id_type,
-        user_legal_id=user_legal_id,
-        payment_description=payment_description,
-    )
-
     return create_payment(
         amount_in_cents=amount_in_cents,
         taxes=taxes,
@@ -64,5 +54,12 @@ def create_bank_transfer_payment(
         address_line_2=address_line_2,
         postal_code=postal_code,
         currency=currency,
-        payment_method=BankTransferRequest.from_dict(bank_transfer_payment_method),
+        payment_method=BankTransferRequest(
+            type=AvailablePaymentMethod.PSE,
+            user_type=user_type,
+            financial_institution_code=financial_institution_code,
+            payment_description=payment_description,
+            user_legal_id=user_legal_id,
+            user_legal_id_type=user_legal_id_type,
+        ),
     )

@@ -1,4 +1,4 @@
-from typing import Optional, Union, List
+from typing import Any, Optional, Union, List, cast
 from wompi.models.exception import WompiException
 from wompi.models.methods.bank_transfer import BankTransferResponse, BankTransferRequest
 from wompi.models.methods.card import CardResponse, CreditCardRequest
@@ -8,13 +8,12 @@ from wompi.models.methods.wallet import WalletRequest, WalletResponse
 from wompi.models.methods import PaymentResponse
 from wompi.models.methods import AvailablePaymentMethod
 from wompi.models.entities.taxes import Tax
+from wompi.typing.utils import GetPayment
 from wompi.utils import optional_dict
+from wompi.decorators.errors import capture_error
 from wompi.utils.requests import get, post
 
-PAYMENTS_PATH = '/transactions'
-
 CURRENCY = 'COP'
-
 PAYMENT_TYPE = {
     AvailablePaymentMethod.CARD.value: CardResponse,
     AvailablePaymentMethod.NEQUI.value: WalletResponse,
@@ -52,10 +51,8 @@ def create_payment(
         })
 
     general_optional_params = optional_dict(redirect_url=redirect_url)
-
     shipping_optional_params = optional_dict(postal_code=postal_code, address_line_2=address_line_2)
-
-    payment_source = {'payment_source_id': payment_method.token} if saved_payment_method else {}
+    payment_source = {'payment_source_id': cast(Any, payment_method).token} if saved_payment_method else {}
 
     body = {
         'acceptance_token': acceptance_token,
@@ -82,23 +79,15 @@ def create_payment(
         **general_optional_params,
     }
 
-    return post(path=PAYMENTS_PATH, body=body, sensitive=saved_payment_method)
+    return post(path='/transactions', body=body, sensitive=saved_payment_method)
+
+
+@capture_error(GetPayment)
+def _get_payment(transaction_id: str) -> dict:
+    return get(path='/transactions/{transaction_id}', path_params={'transaction_id': transaction_id})
 
 
 def get_payment(transaction_id: str) -> PaymentResponse:
-    res = get(path='/transactions/{transaction_id}', path_params={'transaction_id': transaction_id})
-
-    if res.get('error'):
-        raise WompiException.from_dict(res['error'])
-
-    return PAYMENT_TYPE[res['data']['payment_method_type']].from_dict(res['data'])
-
-
-def void_payment(transaction_id: str):
-    res = post(path='/transactions/{transaction_id}/void',
-               path_params={'transaction_id': transaction_id},
-               sensitive=True)
-    if res.get('error'):
-        raise WompiException.from_dict(res['error'])
-
-    return res
+    data = _get_payment(transaction_id=transaction_id)
+    response_class = PAYMENT_TYPE[data['payment_method_type']]
+    return response_class.from_dict(data)

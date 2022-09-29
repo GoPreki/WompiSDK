@@ -18,7 +18,7 @@ class BankTransfer:
 
 @dataclass
 class BankTransferRequest(PaymentRequest):
-    user_type: str
+    user_type: int
     user_legal_id_type: str
     user_legal_id: str
     financial_institution_code: str
@@ -39,7 +39,6 @@ class BankTransferRequest(PaymentRequest):
         payment_info = PaymentRequest.from_dict(req)
         return BankTransferRequest(
             type=payment_info.type,
-            token=payment_info.token,
             financial_institution_code=req['financial_institution_code'],
             payment_description=req['payment_description'],
             user_legal_id=req['user_legal_id'],

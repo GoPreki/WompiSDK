@@ -1,14 +1,15 @@
 from typing import List, Optional
 from wompi.models.methods.collect import CollectResponse, CollectRequest
 from wompi.models.methods import AvailablePaymentMethod
+from wompi.models.utils import SandboxStatus
 from wompi.typing.collect import CreateCollectPayment
-from wompi.utils import optional_dict
 from wompi.models.entities.taxes import Tax
 from wompi.payments import create_payment
-from wompi.utils.decorators import polling, request
+from wompi.decorators.requests import polling, request
 
 
-@polling(CreateCollectPayment.Response, until=['business_agreement_code', 'payment_intention_identifier'])
+@polling(CreateCollectPayment.Response,
+         until=['payment_info.business_agreement_code', 'payment_info.payment_intention_identifier'])
 @request(CreateCollectPayment, CreateCollectPayment.Response, cls=CollectResponse)
 def create_collect_payment(
     amount_in_cents: int,
@@ -26,11 +27,8 @@ def create_collect_payment(
     address_line_2: Optional[str] = None,
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
+    sandbox_status: SandboxStatus = None,
 ) -> dict:
-
-    collect_payment_method = optional_dict(type=AvailablePaymentMethod.BANCOLOMBIA_COLLECT.value,
-                                           sandbox_status='APPROVED')
-
     return create_payment(
         amount_in_cents=amount_in_cents,
         taxes=taxes,
@@ -47,5 +45,8 @@ def create_collect_payment(
         address_line_2=address_line_2,
         postal_code=postal_code,
         currency=currency,
-        payment_method=CollectRequest.from_dict(collect_payment_method),
+        payment_method=CollectRequest(
+            type=AvailablePaymentMethod.BANCOLOMBIA_COLLECT,
+            sandbox_status=sandbox_status,
+        ),
     )

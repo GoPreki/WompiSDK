@@ -36,9 +36,7 @@ class CollectRequest(PaymentRequest):
     @staticmethod
     def from_dict(req: dict) -> 'CollectRequest':
         payment_info = PaymentRequest.from_dict(req)
-        return CollectRequest(type=payment_info.type,
-                              token=payment_info.token,
-                              sandbox_status=req.get('sandbox_status'))
+        return CollectRequest(type=payment_info.type, sandbox_status=req.get('sandbox_status'))
 
 
 @dataclass

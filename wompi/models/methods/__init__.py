@@ -25,21 +25,14 @@ class PaymentStatus(Enum):
 
 @dataclass
 class PaymentRequest:
-    token: Optional[str]
     type: AvailablePaymentMethod
 
     def to_dict(self) -> dict:
-        return optional_dict(
-            token=self.token,
-            type=self.type.value,
-        )
+        return optional_dict(type=self.type.value)
 
     @staticmethod
     def from_dict(res: dict) -> 'PaymentRequest':
-        return PaymentRequest(
-            type=AvailablePaymentMethod(res['type']),
-            token=res.get('token'),
-        )
+        return PaymentRequest(type=AvailablePaymentMethod(res['type']))
 
 
 @dataclass

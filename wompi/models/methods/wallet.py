@@ -1,3 +1,4 @@
+from typing import Optional
 from wompi.models.methods import PaymentResponse, PaymentRequest, AvailablePaymentMethod
 from dataclasses import dataclass
 from wompi.models.token import Token
@@ -51,11 +52,13 @@ class WalletToken(Token):
 @dataclass
 class WalletRequest(PaymentRequest):
     wallet_id: str
+    token: Optional[str]
 
     def to_dict(self) -> dict:
 
         return optional_dict(
             **super().to_dict(),
+            token=self.token,
             **{WALLET_PROPERTY[self.type.value]: self.wallet_id},
         )
 
@@ -64,8 +67,8 @@ class WalletRequest(PaymentRequest):
         payment_info = PaymentRequest.from_dict(req)
         return WalletRequest(
             type=payment_info.type,
-            token=payment_info.token,
             wallet_id=req[WALLET_PROPERTY[payment_info.type.value]],
+            token=req.get('token'),
         )
 
 

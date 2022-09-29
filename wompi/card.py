@@ -3,11 +3,11 @@ from wompi.models.methods import AvailablePaymentMethod
 from wompi.models.entities.taxes import Tax
 from wompi.models.methods.card import CardResponse, CardToken, CreditCardRequest
 from wompi.payments import create_payment
-from wompi.typing.card import CreateCardPayment, CreateCardToken
-from wompi.utils.decorators import request
+from wompi.typing.card import CreateCardPayment, CreateCardToken, VoidPayment
+from wompi.decorators.errors import capture_error
+from wompi.decorators.requests import request
+from wompi.utils.requests import post
 from wompi.utils.tokenize import create_token, create_long_term_token
-
-CARDS_PATH = '/cards'
 
 
 @request(CreateCardPayment, CreateCardPayment.Response, cls=CardResponse)
@@ -31,13 +31,6 @@ def create_card_payment(
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
 ) -> dict:
-
-    card_payment_method = {
-        'token': payment_token,
-        'installments': installments,
-        'type': AvailablePaymentMethod.CARD.value
-    }
-
     return create_payment(
         amount_in_cents=amount_in_cents,
         taxes=taxes,
@@ -55,11 +48,15 @@ def create_card_payment(
         address_line_2=address_line_2,
         postal_code=postal_code,
         currency=currency,
-        payment_method=CreditCardRequest.from_dict(card_payment_method),
+        payment_method=CreditCardRequest(
+            type=AvailablePaymentMethod.CARD,
+            installments=installments,
+            token=payment_token,
+        ),
     )
 
 
-@request(CreateCardToken, CreateCardToken.Response, cls=CardToken)
+@request(CreateCardToken, CreateCardToken.Response, cls=CardToken, extract_data=False)
 def create_card_token(
     card_number: str,
     cvc: str,
@@ -75,13 +72,20 @@ def create_card_token(
         'card_holder': card_holder,
     }
 
-    return create_token(path=CARDS_PATH, info=body)
+    return create_token(path='/cards', info=body)
 
 
-def create_card_long_term_token(customer_email, payment_token, acceptance_token):
+def create_card_long_term_token(customer_email, payment_token, acceptance_token) -> dict:
     return create_long_term_token(
         payment_type=AvailablePaymentMethod.CARD.value,
         acceptance_token=acceptance_token,
         payment_token=payment_token,
         customer_email=customer_email,
     )
+
+
+@capture_error(VoidPayment, extract_data=False)
+def void_payment(transaction_id: str):
+    return post(path='/transactions/{transaction_id}/void',
+                path_params={'transaction_id': transaction_id},
+                sensitive=True)

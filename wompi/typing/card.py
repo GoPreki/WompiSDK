@@ -78,3 +78,9 @@ class CreateCardToken(Protocol):
         card_holder: str,
     ) -> dict:
         ...
+
+
+class VoidPayment(Protocol):
+
+    def __call__(self, transaction_id: str) -> None:
+        ...

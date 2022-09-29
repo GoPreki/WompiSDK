@@ -1,16 +1,17 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 from wompi.models.methods import AvailablePaymentMethod
 from wompi.models.methods.transfer import TransferRequest, TransferResponse
+from wompi.models.utils import SandboxStatus
 from wompi.typing.transfer import CreateTransferPayment
-from wompi.utils import optional_dict
 from wompi.models.entities.taxes import Tax
 from wompi.payments import create_payment
-from wompi.utils.decorators import polling, request
+from wompi.decorators.requests import polling, request
 
 
 @polling(CreateTransferPayment.Response, until=['payment_info.async_payment_url'])
 @request(CreateTransferPayment, CreateTransferPayment.Response, cls=TransferResponse)
 def create_transfer_payment(
+    user_type: Literal['PERSON'],
     amount_in_cents: int,
     taxes: List[Tax],
     customer_email: str,
@@ -26,13 +27,8 @@ def create_transfer_payment(
     address_line_2: Optional[str] = None,
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
+    sandbox_status: SandboxStatus = None,
 ) -> dict:
-
-    collect_payment_method = optional_dict(type=AvailablePaymentMethod.BANCOLOMBIA_TRANSFER.value,
-                                           sandbox_status='APPROVED',
-                                           user_type='PERSON',
-                                           payment_description='.')
-
     return create_payment(
         amount_in_cents=amount_in_cents,
         taxes=taxes,
@@ -49,5 +45,8 @@ def create_transfer_payment(
         address_line_2=address_line_2,
         postal_code=postal_code,
         currency=currency,
-        payment_method=TransferRequest.from_dict(collect_payment_method),
+        payment_method=TransferRequest(type=AvailablePaymentMethod.BANCOLOMBIA_TRANSFER,
+                                       sandbox_status=sandbox_status,
+                                       user_type=user_type,
+                                       payment_description=commerce_reference),
     )

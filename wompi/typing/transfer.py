@@ -1,7 +1,8 @@
-from typing import List, Optional, Protocol
+from typing import List, Literal, Optional, Protocol
 
 from wompi.models.entities.taxes import Tax
 from wompi.models.methods.collect import CollectResponse
+from wompi.models.utils import SandboxStatus
 
 
 class CreateTransferPayment(Protocol):
@@ -10,6 +11,7 @@ class CreateTransferPayment(Protocol):
 
         def __call__(
             self,
+            user_type: Literal['PERSON'],
             amount_in_cents: int,
             taxes: List[Tax],
             customer_email: str,
@@ -25,11 +27,13 @@ class CreateTransferPayment(Protocol):
             address_line_2: Optional[str] = None,
             postal_code: Optional[str] = None,
             redirect_url: Optional[str] = None,
+            sandbox_status: SandboxStatus = None,
         ) -> CollectResponse:
             ...
 
     def __call__(
         self,
+        user_type: Literal['PERSON'],
         amount_in_cents: int,
         taxes: List[Tax],
         customer_email: str,
@@ -45,5 +49,6 @@ class CreateTransferPayment(Protocol):
         address_line_2: Optional[str] = None,
         postal_code: Optional[str] = None,
         redirect_url: Optional[str] = None,
+        sandbox_status: SandboxStatus = None,
     ) -> dict:
         ...

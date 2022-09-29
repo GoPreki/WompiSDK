@@ -5,8 +5,7 @@ from wompi.models.methods.wallet import WALLET_PROPERTY, WalletResponse, WalletR
 from wompi.models.entities.taxes import Tax
 from wompi.payments import create_payment
 from wompi.typing.wallet import CreateWalletPayment, CreateWalletToken, GetWalletTokenInfo
-from wompi.utils import optional_dict
-from wompi.utils.decorators import request
+from wompi.decorators.requests import request
 from wompi.utils.tokenize import create_token, create_long_term_token, get_token_info
 
 
@@ -15,13 +14,7 @@ def create_wallet_token(
     type: str,
     wallet_id: str,
 ) -> dict:
-    if type != AvailablePaymentMethod.NEQUI.value:
-        raise WompiException.from_dict({
-            'type': 'INPUT_VALIDATION_ERROR',
-            'messages': {
-                'reference': ['Wallet payment method not available']
-            }
-        })
+    _check_method(type=type)
 
     body = {
         WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
@@ -31,13 +24,7 @@ def create_wallet_token(
 
 
 def create_wallet_long_term_token(type, customer_email, payment_token, acceptance_token):
-    if type != AvailablePaymentMethod.NEQUI.value:
-        raise WompiException.from_dict({
-            'type': 'INPUT_VALIDATION_ERROR',
-            'messages': {
-                'reference': ['Wallet payment method not available']
-            }
-        })
+    _check_method(type=type)
 
     return create_long_term_token(
         payment_type=type,
@@ -49,14 +36,7 @@ def create_wallet_long_term_token(type, customer_email, payment_token, acceptanc
 
 @request(GetWalletTokenInfo, GetWalletTokenInfo.Response, cls=WalletToken)
 def get_wallet_token_info(type: str, token: str) -> dict:
-
-    if type != AvailablePaymentMethod.NEQUI.value:
-        raise WompiException.from_dict({
-            'type': 'INPUT_VALIDATION_ERROR',
-            'messages': {
-                'reference': ['Wallet payment method not available']
-            }
-        })
+    _check_method(type=type)
 
     return get_token_info(
         path='nequi',
@@ -86,22 +66,7 @@ def create_wallet_payment(
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
 ) -> dict:
-
-    if type != AvailablePaymentMethod.NEQUI.value:
-        raise WompiException.from_dict({
-            'type': 'INPUT_VALIDATION_ERROR',
-            'messages': {
-                'reference': ['Wallet payment method not available']
-            }
-        })
-
-    wallet_payment_method = optional_dict(
-        token=payment_token,
-        type=AvailablePaymentMethod.NEQUI.value,
-        **{
-            WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
-        },
-    )
+    _check_method(type=type)
 
     return create_payment(
         amount_in_cents=amount_in_cents,
@@ -120,5 +85,19 @@ def create_wallet_payment(
         address_line_2=address_line_2,
         postal_code=postal_code,
         currency=currency,
-        payment_method=WalletRequest.from_dict(wallet_payment_method),
+        payment_method=WalletRequest(
+            type=AvailablePaymentMethod.NEQUI,
+            token=payment_token,
+            wallet_id=wallet_id,
+        ),
     )
+
+
+def _check_method(type: str):
+    if type != AvailablePaymentMethod.NEQUI.value:
+        raise WompiException.from_dict({
+            'type': 'INPUT_VALIDATION_ERROR',
+            'messages': {
+                'reference': ['Wallet payment method not available']
+            }
+        })
