@@ -12,6 +12,7 @@ class AvailablePaymentMethod(Enum):
     NEQUI = 'NEQUI'
     PSE = 'PSE'
     BANCOLOMBIA_COLLECT = 'BANCOLOMBIA_COLLECT'
+    BANCOLOMBIA_TRANSFER = 'BANCOLOMBIA_TRANSFER'
 
 
 class PaymentStatus(Enum):

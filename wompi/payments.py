@@ -3,6 +3,7 @@ from wompi.models.exception import WompiException
 from wompi.models.methods.bank_transfer import BankTransferResponse, BankTransferRequest
 from wompi.models.methods.card import CardResponse, CreditCardRequest
 from wompi.models.methods.collect import CollectResponse, CollectRequest
+from wompi.models.methods.transfer import TransferRequest, TransferResponse
 from wompi.models.methods.wallet import WalletRequest, WalletResponse
 from wompi.models.methods import PaymentResponse
 from wompi.models.methods import AvailablePaymentMethod
@@ -19,6 +20,7 @@ PAYMENT_TYPE = {
     AvailablePaymentMethod.NEQUI.value: WalletResponse,
     AvailablePaymentMethod.PSE.value: BankTransferResponse,
     AvailablePaymentMethod.BANCOLOMBIA_COLLECT.value: CollectResponse,
+    AvailablePaymentMethod.BANCOLOMBIA_TRANSFER.value: TransferResponse,
 }
 
 
@@ -35,7 +37,7 @@ def create_payment(
     city: str,
     currency: str,
     customer_phone_number: str,
-    payment_method: Union[CreditCardRequest, WalletRequest, BankTransferRequest, CollectRequest],
+    payment_method: Union[CreditCardRequest, WalletRequest, BankTransferRequest, CollectRequest, TransferRequest],
     saved_payment_method: bool = False,
     address_line_2: Optional[str] = None,
     postal_code: Optional[str] = None,
