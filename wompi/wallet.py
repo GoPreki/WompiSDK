@@ -1,18 +1,20 @@
 from typing import List, Optional
 from wompi.models.exception import WompiException
-from wompi.models.payment_methods import AvailablePaymentMethod, WALLET_PROPERTY
-from wompi.models.payment import WalletPayment, PaymentWallet
-from wompi.models.taxes import Tax
-from wompi.models.token import WalletToken
+from wompi.models.methods import AvailablePaymentMethod
+from wompi.models.methods.wallet import WALLET_PROPERTY, WalletResponse, WalletRequest, WalletToken
+from wompi.models.entities.taxes import Tax
 from wompi.payments import create_payment
+from wompi.typing.wallet import CreateWalletPayment, CreateWalletToken, GetWalletTokenInfo
 from wompi.utils import optional_dict
+from wompi.utils.decorators import request
 from wompi.utils.tokenize import create_token, create_long_term_token, get_token_info
 
 
+@request(CreateWalletToken, CreateWalletToken.Response, cls=WalletToken)
 def create_wallet_token(
     type: str,
     wallet_id: str,
-):
+) -> dict:
     if type != AvailablePaymentMethod.NEQUI.value:
         raise WompiException.from_dict({
             'type': 'INPUT_VALIDATION_ERROR',
@@ -25,16 +27,10 @@ def create_wallet_token(
         WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
     }
 
-    wallet_token = create_token(path='/nequi', info=body)
-
-    if wallet_token.get('error'):
-        raise WompiException.from_dict(wallet_token['error'])
-
-    return WalletToken.from_dict(wallet_token['data'])
+    return create_token(path='/nequi', info=body)
 
 
-def create_wallet_long_term_token(type, customer_email, payment_token,
-                                  acceptance_token):
+def create_wallet_long_term_token(type, customer_email, payment_token, acceptance_token):
     if type != AvailablePaymentMethod.NEQUI.value:
         raise WompiException.from_dict({
             'type': 'INPUT_VALIDATION_ERROR',
@@ -51,7 +47,8 @@ def create_wallet_long_term_token(type, customer_email, payment_token,
     )
 
 
-def get_wallet_token_info(type, token):
+@request(GetWalletTokenInfo, GetWalletTokenInfo.Response, cls=WalletToken)
+def get_wallet_token_info(type: str, token: str) -> dict:
 
     if type != AvailablePaymentMethod.NEQUI.value:
         raise WompiException.from_dict({
@@ -61,17 +58,13 @@ def get_wallet_token_info(type, token):
             }
         })
 
-    wallet_token = get_token_info(
+    return get_token_info(
         path='nequi',
         token=token,
     )
 
-    if wallet_token.get('error'):
-        raise WompiException.from_dict(wallet_token['error'])
 
-    return WalletToken.from_dict(wallet_token['data'])
-
-
+@request(CreateWalletPayment, CreateWalletPayment.Response, cls=WalletResponse)
 def create_wallet_payment(
     amount_in_cents: int,
     taxes: List[Tax],
@@ -92,7 +85,7 @@ def create_wallet_payment(
     address_line_2: Optional[str] = None,
     postal_code: Optional[str] = None,
     redirect_url: Optional[str] = None,
-) -> WalletPayment:
+) -> dict:
 
     if type != AvailablePaymentMethod.NEQUI.value:
         raise WompiException.from_dict({
@@ -102,13 +95,15 @@ def create_wallet_payment(
             }
         })
 
-    wallet_payment_method = optional_dict(**{
-        'token': payment_token,
-        WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
-        'type': AvailablePaymentMethod.NEQUI.value
-    })
+    wallet_payment_method = optional_dict(
+        token=payment_token,
+        type=AvailablePaymentMethod.NEQUI.value,
+        **{
+            WALLET_PROPERTY.get(type, 'phone_number'): wallet_id,
+        },
+    )
 
-    payment = create_payment(
+    return create_payment(
         amount_in_cents=amount_in_cents,
         taxes=taxes,
         customer_email=customer_email,
@@ -125,9 +120,5 @@ def create_wallet_payment(
         address_line_2=address_line_2,
         postal_code=postal_code,
         currency=currency,
-        payment_method=PaymentWallet.from_dict(wallet_payment_method))
-
-    if payment.get('error'):
-        raise WompiException.from_dict(payment['error'])
-
-    return WalletPayment.from_dict(payment['data'])
+        payment_method=WalletRequest.from_dict(wallet_payment_method),
+    )

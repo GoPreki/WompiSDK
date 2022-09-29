@@ -1,10 +1,10 @@
-from dataclasses import dataclass
+import hashlib
 from enum import Enum
 from typing import List, Any
+from dataclasses import dataclass
 from wompi.models.exception import WompiException
 from wompi.utils import optional_dict
 from wompi.utils.requests import Keys
-import hashlib
 
 
 class EventType(Enum):
