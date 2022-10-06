@@ -1,7 +1,7 @@
 from typing import List, Literal, Optional, Protocol
 
 from wompi.models.entities.taxes import Tax
-from wompi.models.methods.collect import CollectResponse
+from wompi.models.methods.transfer import TransferResponse
 from wompi.models.utils import SandboxStatus
 
 
@@ -28,7 +28,7 @@ class CreateTransferPayment(Protocol):
             postal_code: Optional[str] = None,
             redirect_url: Optional[str] = None,
             sandbox_status: SandboxStatus = None,
-        ) -> CollectResponse:
+        ) -> TransferResponse:
             ...
 
     def __call__(
