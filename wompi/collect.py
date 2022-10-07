@@ -12,6 +12,7 @@ from wompi.decorators.requests import polling, request
          until=['payment_info.business_agreement_code', 'payment_info.payment_intention_identifier'])
 @request(CreateCollectPayment, CreateCollectPayment.Response, cls=CollectResponse)
 def create_collect_payment(
+    session_id: str,
     amount_in_cents: int,
     taxes: List[Tax],
     customer_email: str,
@@ -30,6 +31,7 @@ def create_collect_payment(
     sandbox_status: SandboxStatus = None,
 ) -> dict:
     return create_payment(
+        session_id=session_id,
         amount_in_cents=amount_in_cents,
         taxes=taxes,
         customer_email=customer_email,

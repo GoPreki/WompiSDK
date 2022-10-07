@@ -11,6 +11,7 @@ from wompi.decorators.requests import polling, request
 @polling(CreateTransferPayment.Response, until=['payment_info.async_payment_url'])
 @request(CreateTransferPayment, CreateTransferPayment.Response, cls=TransferResponse)
 def create_transfer_payment(
+    session_id: str,
     user_type: Literal['PERSON'],
     amount_in_cents: int,
     taxes: List[Tax],
@@ -30,6 +31,7 @@ def create_transfer_payment(
     sandbox_status: SandboxStatus = None,
 ) -> dict:
     return create_payment(
+        session_id=session_id,
         amount_in_cents=amount_in_cents,
         taxes=taxes,
         customer_email=customer_email,

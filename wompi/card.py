@@ -12,6 +12,7 @@ from wompi.utils.tokenize import create_token, create_long_term_token
 
 @request(CreateCardPayment, CreateCardPayment.Response, cls=CardResponse)
 def create_card_payment(
+    session_id: str,
     amount_in_cents: int,
     taxes: List[Tax],
     customer_email: str,
@@ -32,6 +33,7 @@ def create_card_payment(
     redirect_url: Optional[str] = None,
 ) -> dict:
     return create_payment(
+        session_id=session_id,
         amount_in_cents=amount_in_cents,
         taxes=taxes,
         customer_email=customer_email,

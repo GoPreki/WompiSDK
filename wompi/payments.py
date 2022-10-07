@@ -24,6 +24,7 @@ PAYMENT_TYPE = {
 
 
 def create_payment(
+    session_id: str,
     amount_in_cents: int,
     taxes: List[Tax],
     customer_email: str,
@@ -55,6 +56,7 @@ def create_payment(
     payment_source = {'payment_source_id': cast(Any, payment_method).token} if saved_payment_method else {}
 
     body = {
+        'session_id': session_id,
         'acceptance_token': acceptance_token,
         'amount_in_cents': amount_in_cents,
         'currency': currency,

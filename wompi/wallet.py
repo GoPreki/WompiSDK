@@ -46,6 +46,7 @@ def get_wallet_token_info(type: str, token: str) -> dict:
 
 @request(CreateWalletPayment, CreateWalletPayment.Response, cls=WalletResponse)
 def create_wallet_payment(
+    session_id: str,
     amount_in_cents: int,
     taxes: List[Tax],
     customer_email: str,
@@ -69,6 +70,7 @@ def create_wallet_payment(
     _check_method(type=type)
 
     return create_payment(
+        session_id=session_id,
         amount_in_cents=amount_in_cents,
         taxes=taxes,
         customer_email=customer_email,

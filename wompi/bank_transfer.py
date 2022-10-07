@@ -17,6 +17,7 @@ def list_available_transfer_banks():
 @polling(CreateBankTransferPayment.Response, until=['info.async_payment_url'])
 @request(CreateBankTransferPayment, CreateBankTransferPayment.Response, cls=BankTransferResponse)
 def create_bank_transfer_payment(
+    session_id: str,
     financial_institution_code: str,
     user_type: int,
     user_legal_id_type: str,
@@ -39,6 +40,7 @@ def create_bank_transfer_payment(
     redirect_url: Optional[str] = None,
 ) -> dict:
     return create_payment(
+        session_id=session_id,
         amount_in_cents=amount_in_cents,
         taxes=taxes,
         customer_email=customer_email,
