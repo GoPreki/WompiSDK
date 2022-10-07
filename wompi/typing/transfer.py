@@ -11,6 +11,7 @@ class CreateTransferPayment(Protocol):
 
         def __call__(
             self,
+            session_id: str,
             user_type: Literal['PERSON'],
             amount_in_cents: int,
             taxes: List[Tax],
@@ -33,6 +34,7 @@ class CreateTransferPayment(Protocol):
 
     def __call__(
         self,
+        session_id: str,
         user_type: Literal['PERSON'],
         amount_in_cents: int,
         taxes: List[Tax],

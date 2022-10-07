@@ -8,6 +8,7 @@ class CreateBankTransferPayment(Protocol):
     class Response(Protocol):
 
         def __call__(self,
+                     session_id: str,
                      financial_institution_code: str,
                      user_type: int,
                      user_legal_id_type: str,
@@ -31,6 +32,7 @@ class CreateBankTransferPayment(Protocol):
             ...
 
     def __call__(self,
+                 session_id: str,
                  financial_institution_code: str,
                  user_type: int,
                  user_legal_id_type: str,

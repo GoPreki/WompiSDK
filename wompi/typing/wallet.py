@@ -40,6 +40,7 @@ class CreateWalletPayment(Protocol):
 
         def __call__(
             self,
+            session_id: str,
             amount_in_cents: int,
             taxes: List[Tax],
             customer_email: str,
@@ -64,6 +65,7 @@ class CreateWalletPayment(Protocol):
 
     def __call__(
         self,
+        session_id: str,
         amount_in_cents: int,
         taxes: List[Tax],
         customer_email: str,
